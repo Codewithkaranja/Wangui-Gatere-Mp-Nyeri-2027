@@ -1,117 +1,220 @@
- // Initialize AOS (Animate on Scroll)
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* =========================
+       AOS INIT (SAFE)
+    ========================= */
+    if (typeof AOS !== 'undefined') {
         AOS.init({
             duration: 1000,
             once: true,
             offset: 100
         });
-        
-        // Mobile Navigation Toggle
-        const mobileToggle = document.getElementById('mobile-toggle');
-        const navLinks = document.getElementById('nav-links');
-        
+    }
+
+    /* =========================
+       MOBILE NAV TOGGLE
+    ========================= */
+    const mobileToggle = document.getElementById('mobile-toggle');
+    const navLinks = document.getElementById('nav-links');
+
+    if (mobileToggle && navLinks) {
         mobileToggle.addEventListener('click', () => {
             navLinks.classList.toggle('active');
-            mobileToggle.innerHTML = navLinks.classList.contains('active') 
-                ? '<i class="fas fa-times"></i>' 
+            mobileToggle.innerHTML = navLinks.classList.contains('active')
+                ? '<i class="fas fa-times"></i>'
                 : '<i class="fas fa-bars"></i>';
         });
-        
-        // Close mobile menu when clicking a link
+
         document.querySelectorAll('.nav-links a').forEach(link => {
             link.addEventListener('click', () => {
                 navLinks.classList.remove('active');
                 mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
             });
         });
-        
-        // Set current year in footer (Dynamic Year)
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-        
-        // Newsletter form submission
-        document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+    }
+
+    /* =========================
+       FOOTER YEAR
+    ========================= */
+    const yearEl = document.getElementById('currentYear');
+    if (yearEl) {
+        yearEl.textContent = new Date().getFullYear();
+    }
+
+    /* =========================
+       NEWSLETTER FORM
+    ========================= */
+    const newsletterForm = document.getElementById('newsletterForm');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', e => {
             e.preventDefault();
-            const email = this.querySelector('input[type="email"]').value;
-            alert(`Thank you for subscribing with ${email}! You'll receive campaign updates and news about our community initiatives.`);
-            this.reset();
-        });
-        
-        // Animate hero statistics
-        function animateCounters() {
-            const counters = document.querySelectorAll('.stat-number');
-            const speed = 200;
-            
-            counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-count'));
-                const count = +counter.innerText;
-                const increment = Math.ceil(target / speed);
-                
-                if (count < target) {
-                    counter.innerText = count + increment;
-                    setTimeout(animateCounters, 1);
-                } else {
-                    counter.innerText = target + '+';
-                }
-            });
-        }
-        
-        // Trigger counter animation when hero section is in view
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    setTimeout(animateCounters, 500);
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.5 });
-        
-        const heroSection = document.querySelector('.hero');
-        if (heroSection) {
-            observer.observe(heroSection);
-        }
-        
-        // Header scroll effect
-        window.addEventListener('scroll', function() {
-            const header = document.querySelector('header');
-            if(window.scrollY > 100) {
-                header.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
-                header.style.background = 'rgba(255, 255, 255, 0.98)';
-            } else {
-                header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.05)';
-                header.style.background = 'rgba(255, 255, 255, 0.95)';
+            const email = newsletterForm.querySelector('input[type="email"]')?.value;
+            if (email) {
+                alert(`Thank you for subscribing with ${email}!`);
+                newsletterForm.reset();
             }
         });
-        
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if(targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if(targetElement) {
+    }
+
+    /* =========================
+       HEADER SCROLL EFFECT
+    ========================= */
+    const header = document.querySelector('header');
+    if (header) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                header.style.boxShadow = '0 5px 20px rgba(0,0,0,0.12)';
+                header.style.background = 'rgba(255,255,255,0.98)';
+            } else {
+                header.style.boxShadow = '0 2px 20px rgba(0,0,0,0.05)';
+                header.style.background = 'rgba(255,255,255,0.95)';
+            }
+        });
+    }
+
+    /* =========================
+       SMOOTH SCROLL
+    ========================= */
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', e => {
+            const targetId = anchor.getAttribute('href');
+            if (targetId && targetId !== '#') {
+                const target = document.querySelector(targetId);
+                if (target) {
+                    e.preventDefault();
                     window.scrollTo({
-                        top: targetElement.offsetTop - 80,
+                        top: target.offsetTop - 80,
                         behavior: 'smooth'
                     });
                 }
-            });
+            }
         });
-        
-        // Fade-in animation on scroll
-        function checkFadeIn() {
-            const fadeElements = document.querySelectorAll('.fade-in');
-            
-            fadeElements.forEach(element => {
-                const elementTop = element.getBoundingClientRect().top;
-                const elementVisible = 150;
-                
-                if (elementTop < window.innerHeight - elementVisible) {
-                    element.classList.add('visible');
+    });
+
+    /* =========================
+       FADE-IN ON SCROLL
+    ========================= */
+    const fadeElements = document.querySelectorAll('.fade-in');
+    const checkFadeIn = () => {
+        fadeElements.forEach(el => {
+            if (el.getBoundingClientRect().top < window.innerHeight - 150) {
+                el.classList.add('visible');
+            }
+        });
+    };
+    window.addEventListener('scroll', checkFadeIn);
+    checkFadeIn();
+
+    /* =========================
+       HERO TYPING EFFECT (SAFE)
+    ========================= */
+    const heroTitle = document.querySelector('.hero h1');
+    if (heroTitle) {
+        const text = heroTitle.textContent;
+        heroTitle.textContent = '';
+        let i = 0;
+
+        const typeWriter = () => {
+            if (i < text.length) {
+                heroTitle.textContent += text.charAt(i);
+                i++;
+                setTimeout(typeWriter, 45);
+            }
+        };
+
+        setTimeout(typeWriter, 600);
+    }
+
+    /* =========================
+       HERO STATS COUNTER (MERGED & FIXED)
+    ========================= */
+    const statNumbers = document.querySelectorAll('.stat-number');
+
+    if (statNumbers.length) {
+        const statsObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.dataset.count, 10);
+                    let count = 0;
+                    const increment = Math.max(1, Math.floor(target / 40));
+
+                    const update = () => {
+                        count += increment;
+                        if (count < target) {
+                            el.textContent = count;
+                            requestAnimationFrame(update);
+                        } else {
+                            el.textContent = target + '+';
+                        }
+                    };
+
+                    update();
+                    statsObserver.unobserve(el);
                 }
             });
-        }
-        
-        window.addEventListener('scroll', checkFadeIn);
-        window.addEventListener('load', checkFadeIn);
+        }, { threshold: 0.5 });
+
+        statNumbers.forEach(stat => {
+            stat.textContent = '0';
+            statsObserver.observe(stat);
+        });
+    }
+
+    /* =========================
+       COUNTDOWN TIMER (SAFE)
+    ========================= */
+    const countdownEl = document.querySelector('.countdown');
+    if (countdownEl) {
+        const updateCountdown = () => {
+            const electionDate = new Date('August 9, 2027 00:00:00').getTime();
+            const now = Date.now();
+            const diff = electionDate - now;
+
+            if (diff < 0) {
+                countdownEl.innerHTML = '<h3>The 2027 Elections Have Arrived</h3>';
+                return;
+            }
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const m = Math.floor((diff / (1000 * 60)) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+
+            document.getElementById('days').textContent = String(d).padStart(3, '0');
+            document.getElementById('hours').textContent = String(h).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(m).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(s).padStart(2, '0');
+        };
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    }
+
+    /* =========================
+       HERO BACKGROUND SLIDER (SAFE)
+    ========================= */
+   const heroBg = document.querySelector('.hero-bg');
+
+if (heroBg) {
+    const heroImages = [
+        'image - 2026-01-18T170428.100.webp',
+        'image - 2026-01-18T170239.246.webp',
+        'image - 2026-01-18T170605.787.webp'
+    ];
+
+    let currentIndex = 0;
+
+    function changeHeroBackground() {
+        heroBg.style.backgroundImage = `
+            linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.65)),
+            url('${heroImages[currentIndex]}')
+        `;
+        currentIndex = (currentIndex + 1) % heroImages.length;
+    }
+
+    changeHeroBackground();
+    setInterval(changeHeroBackground, 8000);
+}
+
+});
